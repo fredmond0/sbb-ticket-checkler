@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBB Travel Analyzer</title>
-    <link rel="icon" type="image/svg+xml" href="tram-svgrepo-com.svg">
+    <link rel="icon" type="image/svg+xml" href="assets/tram-svgrepo-com.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -127,7 +127,7 @@
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="flex flex-col md:flex-row items-center justify-center mb-10 bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200">
-            <img src="tram-svgrepo-com.svg" alt="Tram icon" class="w-16 h-16 mr-4 mb-4 md:mb-0 md:mr-8 drop-shadow-lg"/>
+            <img src="assets/tram-svgrepo-com.svg" alt="Tram icon" class="w-16 h-16 mr-4 mb-4 md:mb-0 md:mr-8 drop-shadow-lg"/>
             <div class="text-center md:text-left">
                 <h1 class="text-5xl font-extrabold sbb-dark tracking-tight">SBB Travel Analyzer</h1>
                 <p class="text-xl text-gray-600 mt-2 font-medium">All aboard for savings! Let's analyze your trips.</p>
@@ -178,23 +178,7 @@
                     </svg>
                     <!-- Train -->
                     <div id="train-svg-wrapper" class="absolute z-10" style="transition: left 0.5s cubic-bezier(.4,2,.6,1); left:0; width:56px; bottom:22px;">
-                        <svg viewBox="0 0 512 512" style="width:56px; height:auto; display:block; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));" xmlns="http://www.w3.org/2000/svg">
-                            <g>
-                                <path fill="#C2001B" d="M424.154,133.902H369.23l40.607-30.427L341.98,52.62l-67.856,50.855l40.607,30.427H197.27l40.607-30.427
-                                    l-67.85-50.855l-67.856,50.855l40.607,30.427H87.846C39.323,133.909,0.014,173.224,0,221.747v174.089
-                                    c-0.007,7.977,3.279,15.338,8.511,20.551c5.212,5.232,12.58,8.517,20.551,8.511h38.166c-0.047,0.649-0.196,1.264-0.196,1.92
-                                    c0,17.988,14.575,32.563,32.563,32.563c17.982,0,32.562-14.575,32.562-32.563c0-0.656-0.149-1.271-0.196-1.92h19.09
-                                    c-0.047,0.649-0.196,1.264-0.196,1.92c0,17.988,14.575,32.563,32.563,32.563c17.981,0,32.563-14.575,32.563-32.563
-                                    c0-0.656-0.149-1.271-0.196-1.92h80.437c-0.041,0.649-0.196,1.264-0.196,1.92c0,17.988,14.574,32.563,32.563,32.563
-                                    c17.981,0,32.563-14.575,32.563-32.563c0-0.656-0.149-1.271-0.196-1.92h19.09c-0.041,0.649-0.197,1.264-0.197,1.92
-                                    c0,17.988,14.575,32.563,32.563,32.563c17.982,0,32.563-14.575,32.563-32.563c0-0.656-0.155-1.271-0.196-1.92h38.16
-                                    c7.97,0.006,15.338-3.279,20.551-8.511c5.232-5.212,8.517-12.574,8.511-20.551V221.747
-                                    C511.986,173.224,472.677,133.909,424.154,133.902z"/>
-                                <rect x="98.027" y="240.189" width="58.324" height="116.656" fill="#444"/>
-                                <rect x="217.921" y="240.189" width="68.052" height="58.331" fill="#444"/>
-                                <rect x="345.921" y="240.189" width="68.052" height="58.331" fill="#444"/>
-                            </g>
-                        </svg>
+                        <img src="assets/train-svgrepo-com.svg" alt="Train" style="width:56px; height:auto; display:block; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));">
                     </div>
                 </div>
                 <p id="loader-text" class="mt-2 text-gray-700 font-semibold text-lg" aria-live="polite">Reading PDF...</p>
