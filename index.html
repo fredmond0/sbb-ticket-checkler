@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBB Travel Analyzer</title>
+    <link rel="icon" type="image/svg+xml" href="tram-svgrepo-com.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -70,10 +71,31 @@
             border-radius: 50%;
             border: 2px solid #333;
         }
-
+        .train-svg-loader {
+            animation: move-train 2.5s linear infinite;
+            width: 100%;
+            max-width: 700px;
+        }
+        .train-wheel {
+            transform-origin: center;
+            animation: spin 1s linear infinite;
+        }
+        .smoke-puff {
+            animation: smoke-puff 2.5s linear infinite;
+        }
+        .smoke-puff:nth-child(2) { animation-delay: 0.5s; }
+        .smoke-puff:nth-child(3) { animation-delay: 1s; }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
         @keyframes move-train {
             0% { transform: translateX(0); }
-            100% { transform: translateX(90px); }
+            100% { transform: translateX(60px); }
+        }
+        @keyframes smoke-puff {
+            0% { opacity: 0.7; transform: scale(1) translateY(0); }
+            60% { opacity: 0.5; transform: scale(1.2) translateY(-10px); }
+            100% { opacity: 0; transform: scale(1.5) translateY(-30px); }
         }
 
         [contenteditable]:focus {
@@ -97,14 +119,19 @@
             width: 1.25rem;
             height: 1.25rem;
         }
+        .animate-fade-in { animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
-<body class="bg-gray-800 text-gray-800">
+<body class="bg-gray-100 text-gray-800">
 
     <div class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-10 bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg">
-            <h1 class="text-5xl font-extrabold sbb-dark">SBB Travel Analyzer</h1>
-            <p class="text-xl text-gray-600 mt-2">All aboard for savings! Let's analyze your trips.</p>
+        <header class="flex flex-col md:flex-row items-center justify-center mb-10 bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200">
+            <img src="tram-svgrepo-com.svg" alt="Tram icon" class="w-16 h-16 mr-4 mb-4 md:mb-0 md:mr-8 drop-shadow-lg"/>
+            <div class="text-center md:text-left">
+                <h1 class="text-5xl font-extrabold sbb-dark tracking-tight">SBB Travel Analyzer</h1>
+                <p class="text-xl text-gray-600 mt-2 font-medium">All aboard for savings! Let's analyze your trips.</p>
+            </div>
         </header>
 
         <!-- Phase 1: Upload -->
@@ -113,28 +140,64 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 sbb-red-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                 1. Upload Your PDF Ticket Summary
             </h2>
-            <p class="text-gray-600 mb-6">Select the order summary PDF from your SBB account. Your data stays private and is processed right here in your browser.</p>
+            <p class="text-gray-600 mb-6">Select the order summary PDF from your SBB account. Your data stays private and is processed right here in your browser. <a href="#" id="show-instructions-link" class="text-red-700 underline font-semibold">Here's how.</a></p>
             <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <input type="file" id="pdf-upload" accept=".pdf" class="block w-full text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-md file:font-semibold file:bg-red-100 file:sbb-red-text hover:file:bg-red-200 transition-colors cursor-pointer"/>
             </div>
-            <div id="loader" class="hidden mt-6 flex items-center justify-center flex-col">
-                <div class="train-loader">
-                    <div class="train-body">
-                        <div class="train-window"></div>
-                        <div class="train-wheels">
-                            <div class="wheel"></div>
-                            <div class="wheel"></div>
-                        </div>
+            <div id="loader" class="hidden mt-6 flex items-center justify-center flex-col w-full">
+                <div class="relative w-full max-w-2xl h-24" id="train-loader-track">
+                    <!-- Track with ties -->
+                    <svg class="absolute left-0 right-0 bottom-8 w-full h-6 z-0" viewBox="0 0 600 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0" y="10" width="600" height="4" rx="2" fill="#bbb"/>
+                        <!-- Track ties -->
+                        <g>
+                            <!-- 20 ties evenly spaced -->
+                            <g>
+                                <rect x="0" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="30" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="60" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="90" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="120" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="150" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="180" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="210" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="240" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="270" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="300" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="330" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="360" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="390" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="420" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="450" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="480" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="510" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="540" y="6" width="3" height="12" fill="#888"/>
+                                <rect x="570" y="6" width="3" height="12" fill="#888"/>
+                            </g>
+                        </g>
+                    </svg>
+                    <!-- Train -->
+                    <div id="train-svg-wrapper" class="absolute z-10" style="transition: left 0.5s cubic-bezier(.4,2,.6,1); left:0; width:56px; bottom:22px;">
+                        <svg viewBox="0 0 512 512" style="width:56px; height:auto; display:block; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));" xmlns="http://www.w3.org/2000/svg">
+                            <g>
+                                <path fill="#C2001B" d="M424.154,133.902H369.23l40.607-30.427L341.98,52.62l-67.856,50.855l40.607,30.427H197.27l40.607-30.427
+                                    l-67.85-50.855l-67.856,50.855l40.607,30.427H87.846C39.323,133.909,0.014,173.224,0,221.747v174.089
+                                    c-0.007,7.977,3.279,15.338,8.511,20.551c5.212,5.232,12.58,8.517,20.551,8.511h38.166c-0.047,0.649-0.196,1.264-0.196,1.92
+                                    c0,17.988,14.575,32.563,32.563,32.563c17.982,0,32.562-14.575,32.562-32.563c0-0.656-0.149-1.271-0.196-1.92h19.09
+                                    c-0.047,0.649-0.196,1.264-0.196,1.92c0,17.988,14.575,32.563,32.563,32.563c17.981,0,32.563-14.575,32.563-32.563
+                                    c0-0.656-0.149-1.271-0.196-1.92h80.437c-0.041,0.649-0.196,1.264-0.196,1.92c0,17.988,14.574,32.563,32.563,32.563
+                                    c17.981,0,32.563-14.575,32.563-32.563c0-0.656-0.149-1.271-0.196-1.92h19.09c-0.041,0.649-0.197,1.264-0.197,1.92
+                                    c0,17.988,14.575,32.563,32.563,32.563c17.982,0,32.563-14.575,32.563-32.563c0-0.656-0.155-1.271-0.196-1.92h38.16
+                                    c7.97,0.006,15.338-3.279,20.551-8.511c5.232-5.212,8.517-12.574,8.511-20.551V221.747
+                                    C511.986,173.224,472.677,133.909,424.154,133.902z"/>
+                                <rect x="98.027" y="240.189" width="58.324" height="116.656" fill="#444"/>
+                                <rect x="217.921" y="240.189" width="68.052" height="58.331" fill="#444"/>
+                                <rect x="345.921" y="240.189" width="68.052" height="58.331" fill="#444"/>
+                            </g>
+                        </svg>
                     </div>
-                    <div class="train-track"></div>
                 </div>
-                <p id="loader-text" class="mt-2 text-gray-600 font-semibold text-lg">Reading PDF...</p>
-                <div id="progress-bar" class="hidden mt-4 w-full max-w-md">
-                    <div class="bg-gray-200 rounded-full h-2">
-                        <div id="progress-fill" class="bg-red-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                    <p id="progress-text" class="text-sm text-gray-500 mt-1 text-center">0%</p>
-                </div>
+                <p id="loader-text" class="mt-2 text-gray-700 font-semibold text-lg" aria-live="polite">Reading PDF...</p>
             </div>
             <div id="error-message" class="hidden mt-4 text-red-800 bg-red-100 p-4 rounded-lg font-semibold"></div>
         </div>
@@ -342,6 +405,20 @@
             </div>
         </div>
 
+        <div id="instructions-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-8 relative animate-fade-in border-t-8 border-[#EB0000]">
+                <button id="close-instructions-modal" class="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-2xl font-bold">&times;</button>
+                <h2 class="text-2xl font-bold mb-4" style="color:#EB0000;">How to Download Your SBB Ticket Orders PDF</h2>
+                <ol class="list-decimal list-inside space-y-2" style="color:#444;">
+                    <li>Sign In: Go to the <a href="https://www.sbb.ch/en/buying/pages/bestellung/bestellungen.xhtml" target="_blank" class="text-red-700 underline">SBB orders page</a> and log in with your SwissPass account.</li>
+                    <li>Set Time Period: In the "Select period" section, choose <b>Last year</b>.</li>
+                    <li>Search: Click the <b>Search orders</b> button.</li>
+                    <li>Select All: Tick the checkbox at the top of the list to select all your orders.</li>
+                    <li>Export PDF: Click on <b>Print tickets</b> to save the PDF file.</li>
+                </ol>
+            </div>
+        </div>
+
     </div>
 
     <script type="module">
@@ -381,9 +458,6 @@
         const customDateRangeDiv = document.getElementById('custom-date-range');
         const startDateInput = document.getElementById('start-date');
         const endDateInput = document.getElementById('end-date');
-        const progressBar = document.getElementById('progress-bar');
-        const progressFill = document.getElementById('progress-fill');
-        const progressText = document.getElementById('progress-text');
         
         let travelData = [];
         let typeChartInstance, monthlyChartInstance, dayOfWeekChartInstance, travelersChartInstance, routesChartInstance;
@@ -424,7 +498,6 @@
                 }
                 
                 loaderText.textContent = 'The AI conductor is checking your tickets...';
-                progressBar.classList.remove('hidden');
                 let allData = [];
                 
                 // Process 2 pages at a time to reduce API calls
@@ -440,12 +513,7 @@
                         combinedText += `=== PAGE ${pageNum} ===\n${pageText}\n`;
                     }
                     
-                    const progress = ((i + 2) / totalPages) * 100;
-                    progressFill.style.width = `${Math.min(progress, 100)}%`;
-                    progressText.textContent = `${Math.min(Math.round(progress), 100)}%`;
-                    
-                    const pageRange = pageNumbers.length === 1 ? `page ${pageNumbers[0]}` : `pages ${pageNumbers[0]}-${pageNumbers[pageNumbers.length-1]}`;
-                    loaderText.textContent = `Processing ${pageRange} of ${totalPages}...`;
+                    updateLoaderProgress(Math.min(i + 2, totalPages), totalPages);
                     
                     const pageData = await extractDataWithAI(combinedText, pageNumbers, totalPages);
                     
@@ -1191,9 +1259,6 @@
             analyzeSection.classList.add('hidden');
             resultsSection.classList.add('hidden');
             errorMessage.classList.add('hidden');
-            progressBar.classList.add('hidden');
-            progressFill.style.width = '0%';
-            progressText.textContent = '0%';
             tableBody.innerHTML = '';
             travelData = [];
             dateRangeSelect.value = '3';
@@ -1204,6 +1269,39 @@
             errorMessage.textContent = message;
             errorMessage.classList.remove('hidden');
         }
+
+        // PDF loader progress update (no batching mention)
+        function updateLoaderProgress(current, total) {
+            const percent = Math.round((current / total) * 100);
+            loaderText.textContent = `Processing page ${current} of ${total}... (${percent}%)`;
+            // Move train
+            const track = document.getElementById('train-loader-track');
+            const train = document.getElementById('train-svg-wrapper');
+            if (track && train) {
+                const trackWidth = track.offsetWidth - train.offsetWidth;
+                // Prevent overflow at 0% and 100%
+                const progress = Math.max(0, Math.min(1, (current-1) / (total-1)));
+                train.style.left = `${progress * trackWidth}px`;
+            }
+        }
+
+        // Modal instructions logic
+        const showInstructionsLink = document.getElementById('show-instructions-link');
+        const instructionsModal = document.getElementById('instructions-modal');
+        const closeInstructionsModal = document.getElementById('close-instructions-modal');
+        showInstructionsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            instructionsModal.classList.remove('hidden');
+        });
+        closeInstructionsModal.addEventListener('click', () => {
+            instructionsModal.classList.add('hidden');
+        });
+        instructionsModal.addEventListener('click', (e) => {
+            if (e.target === instructionsModal) instructionsModal.classList.add('hidden');
+        });
     </script>
+    <footer class="mt-16 mb-4 text-center text-gray-400 text-sm font-medium select-none">
+        © allmydogseat 2025
+    </footer>
 </body>
 </html>
