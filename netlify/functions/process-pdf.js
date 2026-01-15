@@ -28,7 +28,7 @@ exports.handler = async (event, context) => {
     }
 
     const { text, pageNumbers, totalPages, isInsightRequest } = JSON.parse(event.body);
-    
+
     if (!text) {
       return {
         statusCode: 400,
@@ -41,34 +41,39 @@ exports.handler = async (event, context) => {
     if (isInsightRequest) {
       prompt = text; // For insight requests, the text is already the prompt
     } else {
-      const pageRange = pageNumbers.length === 1 ? `page ${pageNumbers[0]}` : `pages ${pageNumbers[0]}-${pageNumbers[pageNumbers.length-1]}`;
-      
+      const pageRange = pageNumbers.length === 1 ? `page ${pageNumbers[0]}` : `pages ${pageNumbers[0]}-${pageNumbers[pageNumbers.length - 1]}`;
+
       prompt = `
-        You are an expert data extraction tool for Swiss SBB train ticket summaries.
-        Analyze the following text from ${pageRange} of ${totalPages} and convert it into a structured JSON array.
-        Each object in the array represents one purchase.
+        You are an expert data extraction assistant for SBB (Swiss Federal Railways) ticket documents.
+        Your task is to analyze the text provided from a PDF order summary and extract distinct travel products/tickets into a JSON array.
 
-        The JSON objects must have the following properties:
-        - "travelDate": (string) The travel date in "YYYY-MM-DD" format.
-        - "description": (string) The route or a short description.
-        - "ticketType": (string) A standardized category from: "Point-to-point", "ZVV Ticket", "Travelcard", "Bike", "Day Pass", "International", "Other".
-        - "travelers": (array of strings) A list of traveler names, converted to Title Case (e.g., "Frederick Patton Mondale").
-        - "price": (number) The price in CHF.
-        - "isRefunded": (boolean) True if "Refunded" is associated with the item, otherwise false.
+        INFO:
+        - The text comes from ${pageRange} of ${totalPages}.
+        - The source text may contain headers, footers, and "Total" lines which should be IGNORED.
+        - Refunded items might be marked with "Refunded" or negative prices.
 
-        RULES:
-        1. Convert all traveler names to Title Case to ensure consistency.
-        2. For "Special Price Half Fare Travelcard" or "GA Travelcard", use ticketType "Travelcard".
-        3. For any bike passes or tickets, use ticketType "Bike".
-        4. Parse dates from DD.MM.YYYY to YYYY-MM-DD.
-        5. Ignore the final "Total" line.
-        6. Return ONLY the JSON array.
-        7. If these pages contain no ticket data, return an empty array [].
+        OUTPUT FORMAT:
+        A single JSON array of objects. Each object must have:
+        - "travelDate": (string) "YYYY-MM-DD". If a range is given, use the start date. Use "N/A" if not applicable (e.g., for a pass valid for a year, use the purchase or start date).
+        - "description": (string) A concise description of the route (e.g., "Zurich HB - Bern") or product (e.g., "Half Fare Travelcard").
+        - "ticketType": (string) One of: "Point-to-point", "ZVV Ticket", "Travelcard", "Bike", "Day Pass", "International", "Other".
+          - "Travelcard": Includes Half-Fare, GA, Seven25.
+          - "Point-to-point": Standard A to B tickets.
+          - "Day Pass": Saver Day Pass, Municipality Day Pass.
+        - "travelers": (array of strings) Names of travelers found, formatted as "Firstname Lastname".
+        - "price": (number) The cost in CHF. Must be a positive number.
+        - "isRefunded": (boolean) true if the item indicates a refund/cancellation.
 
-        Text to analyze:
-        ---
+        CRITICAL RULES:
+        1. Ignore line items that are just totals or subtotals.
+        2. Convert dates like "15.01.2024" to "2024-01-15".
+        3. If no relevant ticket data is found on these pages, return an empty array: []
+        4. Do not include markdown formatting (like \`\`\`json) in the response, just the raw JSON.
+
+        TEXT TO PROCESS:
+        ----------------
         ${text}
-        ---
+        ----------------
       `;
     }
 
@@ -89,7 +94,7 @@ exports.handler = async (event, context) => {
     }
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    
+
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -103,26 +108,26 @@ exports.handler = async (event, context) => {
     }
 
     const result = await response.json();
-    
+
     if (result.candidates && result.candidates.length > 0) {
       const responseText = result.candidates[0].content.parts[0].text;
-      
+
       if (isInsightRequest) {
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             data: responseText
           })
         };
       } else {
         const cleanedJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsedData = JSON.parse(cleanedJson);
-        
+
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             data: parsedData,
             pageNumbers,
             totalPages
@@ -138,9 +143,9 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         error: 'Failed to process PDF data',
-        details: error.message 
+        details: error.message
       })
     };
   }

@@ -1,0 +1,289 @@
+/* SBB Ticket Checker - Modern Premium Styles */
+
+:root {
+    /* Color Palette */
+    --sbb-red: #EB0000;
+    --sbb-red-dark: #C40000;
+    --sbb-red-light: #FFE5E5;
+
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+
+    --white: #FFFFFF;
+    --black: #000000;
+
+    /* Glassmorphism */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --backdrop-blur: 12px;
+
+    /* Spacing & Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+
+    --container-width: 1200px;
+}
+
+/* Base Reset & Typography */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--gray-800);
+    background-image: url('train1.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Overlay to ensure readability over background image */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.7) 100%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--gray-900);
+}
+
+/* Layout Utilities */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sbb-red), #ff4d4d);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+}
+
+.btn-primary {
+    background-color: var(--sbb-red);
+    color: var(--white);
+    box-shadow: 0 4px 14px 0 rgba(235, 0, 0, 0.39);
+}
+
+.btn-primary:hover {
+    background-color: var(--sbb-red-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(235, 0, 0, 0.23);
+}
+
+.btn-secondary {
+    background-color: var(--white);
+    color: var(--gray-800);
+    border: 1px solid var(--gray-200);
+}
+
+.btn-secondary:hover {
+    background-color: var(--gray-50);
+    border-color: var(--gray-300);
+}
+
+/* Form Elements */
+input[type="file"],
+input[type="date"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-300);
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-size: 1rem;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--sbb-red);
+    box-shadow: 0 0 0 3px rgba(235, 0, 0, 0.1);
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius-md);
+    padding: 3rem;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: var(--sbb-red);
+    background-color: rgba(235, 0, 0, 0.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Loader */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* Train Loader Animation (Keeping the original concept but refined) */
+.train-loader {
+    width: 100%;
+    max-width: 400px;
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+}
+
+.track {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    height: 4px;
+    background: #ccc;
+}
+
+.train-svg {
+    position: absolute;
+    bottom: 22px;
+    left: -100px;
+    width: 60px;
+    animation: travel 3s linear infinite;
+}
+
+@keyframes travel {
+    0% {
+        left: -100px;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+.sbb-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.5rem;
+    color: var(--sbb-red);
+}
+
+/* Table Styles */
+.data-table-container {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+th {
+    background-color: var(--gray-800);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+tr:hover td {
+    background-color: var(--sbb-red-light);
+}
+
+/* Charts */
+.chart-wrapper {
+    position: relative;
+    height: 350px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
