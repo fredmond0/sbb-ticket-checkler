@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -14,30 +12,29 @@ exports.handler = async (event, context) => {
     const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
-      return { statusCode: 500, headers, body: JSON.stringify({ error: 'API key not configured in Netlify' }) };
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'API key not configured in Netlify dashboard' }) };
     }
 
+    // Using native global fetch (available in Node 18+) for zero-dependency reliability
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     let payload = { contents: [] };
 
-    // Optimized: Only use Search tools for prices, and limit retries to stay under 10s
     if (body.isPriceCheck) {
       payload.contents.push({
         role: "user",
-        parts: [{ text: "Return current 2026 prices for: GA Adult, GA Youth (16-25), Half-Fare, and Bike Pass (Velopass). Annual prices in CHF. Returns ONLY JSON: {GA_ADULT, GA_YOUTH, HALF_FARE, BIKE_PASS}" }]
+        parts: [{ text: "Return current 2026 annual prices for: GA Adult (2nd), GA Youth (2nd, 16-25), Half-Fare, and Bike Pass (Velopass). Returns ONLY JSON: {GA_ADULT, GA_YOUTH, HALF_FARE, BIKE_PASS}" }]
       });
-      // We use 1.5-flash for speed here if 2.5 is hitting limits
     } else if (body.isInsightRequest) {
       payload.contents.push({
         role: "user",
-        parts: [{ text: `Analyze these routes for ZVV Zone 110 patterns and give a personality summary: ${body.text}` }]
+        parts: [{ text: `Analyze these SBB routes for ZVV patterns and traveler persona: ${body.text}` }]
       });
     } else if (body.base64Pdf) {
       payload.contents.push({
         role: "user",
         parts: [
-          { text: "Extract tickets as a JSON array: [ {travelDate, description, ticketType, price} ]. Categorize types: point-to-point, ZVV, Bike, Day Pass." },
+          { text: "Extract tickets as strict JSON: [ {travelDate, description, ticketType, price} ]." },
           { inlineData: { mimeType: "application/pdf", data: body.base64Pdf } }
         ]
       });
@@ -49,19 +46,13 @@ exports.handler = async (event, context) => {
       body: JSON.stringify(payload)
     });
 
+    const result = await response.json();
     if (!response.ok) {
-      const errorText = await response.text();
-      return { statusCode: response.status, headers, body: errorText };
+        return { statusCode: response.status, headers, body: JSON.stringify(result) };
     }
 
-    const result = await response.json();
     const responseText = result.candidates[0].content.parts[0].text;
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ data: responseText })
-    };
+    return { statusCode: 200, headers, body: JSON.stringify({ data: responseText }) };
 
   } catch (error) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
