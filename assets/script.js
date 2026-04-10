@@ -1,5 +1,6 @@
 // Configuration / Live Pricing
 let SBB_PRICES_LIVE = null;
+let GEMINI_API_KEY = null;
 
 const SBB_PRICES_DEFAULT = {
     GA_ADULT: 3995,
@@ -73,17 +74,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// --- API Bypassing Engine ---
+async function getApiKey() {
+    if (GEMINI_API_KEY) return GEMINI_API_KEY;
+    try {
+        const r = await fetch('/.netlify/functions/process-pdf', { method: 'POST', body: JSON.stringify({}) });
+        const d = await r.json();
+        if (d.key) GEMINI_API_KEY = d.key;
+    } catch (e) {
+        console.error("Failed to fetch API key proxy", e);
+    }
+    return GEMINI_API_KEY;
+}
+
+// Directly hitting Gemini API bypasses Netlify's 10-second timeout completely!
+async function callGeminiDirectly(payload) {
+    const key = await getApiKey();
+    if (!key) throw new Error("No API key available");
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+    
+    let retries = 3;
+    while(retries > 0) {
+        try {
+            const r = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (r.status === 429 || r.status >= 500) {
+                retries--;
+                console.warn(`Hit rate limit or error (${r.status}). Waiting 6s...`);
+                await new Promise(resolve => setTimeout(resolve, 6000));
+                continue;
+            }
+            if (!r.ok) {
+                const rt = await r.text();
+                throw new Error("API Error: " + r.status + " " + rt);
+            }
+            
+            const json = await r.json();
+            if (!json.candidates || json.candidates.length === 0) throw new Error("No candidates returned");
+            
+            return json.candidates[0].content.parts[0].text;
+        } catch(e) {
+            retries--;
+            if(retries === 0) throw e;
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+    }
+}
+
 async function fetchLivePrices() {
     if (SBB_PRICES_LIVE) return SBB_PRICES_LIVE;
     console.log("Fetching live prices via Gemini API Grounding...");
     try {
-        const resp = await fetch('/.netlify/functions/process-pdf', {
-            method: 'POST',
-            body: JSON.stringify({ isPriceCheck: true })
-        });
-        const d = await resp.json();
-        if (d && d.data && d.data.GA_ADULT) {
-            SBB_PRICES_LIVE = Object.assign({}, SBB_PRICES_DEFAULT, d.data); // Merge API with defaults explicitly
+        const payload = {
+            contents: [{
+                role: "user",
+                parts: [{ text: "Search and return the absolute current 2026 prices for Swiss SBB travel passes in CHF. I need: 1) Adult 2nd Class GA Travelcard (annual), 2) Youth 2nd Class GA Travelcard (annual, age 16-25), 3) Annual Half-Fare Travelcard, 4) Annual Bike Pass (Velopass). Return ONLY a minified JSON object with these exact keys: GA_ADULT, GA_YOUTH, HALF_FARE, BIKE_PASS. Ensure keys have integer values." }]
+            }],
+            tools: [{ googleSearch: {} }]
+        };
+        
+        const rawText = await callGeminiDirectly(payload);
+        const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const d = JSON.parse(cleanJson);
+        
+        if (d && d.GA_ADULT) {
+            SBB_PRICES_LIVE = Object.assign({}, SBB_PRICES_DEFAULT, d); // Merge API with defaults explicitly
             console.log("Live Prices Loaded:", SBB_PRICES_LIVE);
             return SBB_PRICES_LIVE;
         }
@@ -140,7 +198,7 @@ async function handleFileUpload(event) {
             showError("Unsupported file type.");
         }
     } catch (error) {
-        showError("Failed to process the file.");
+        showError("Failed to process the file: " + error.message);
         elements.loader.classList.add('hidden');
     }
 }
@@ -183,15 +241,39 @@ function processPDF(file) {
         reader.onload = async (e) => {
             try {
                 const base64Data = e.target.result.split(',')[1];
-                const response = await fetch('/.netlify/functions/process-pdf', {
-                    method: 'POST',
-                    body: JSON.stringify({ base64Pdf: base64Data })
-                });
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: `
+                                You are an expert data extraction assistant for SBB (Swiss Federal Railways) ticket documents.
+                                We have provided a PDF document containing order history.
+                                Extract the distinct travel products/tickets into a strict JSON array.
+                                IGNORE refunds, and IGNORE total lines.
+                      
+                                OUTPUT FORMAT:
+                                A single JSON array of objects. Each object must have:
+                                - "travelDate": (string) "YYYY-MM-DD". If unknown use "N/A".
+                                - "description": (string) A concise description of the route or product.
+                                - "ticketType": (string) Try to categorize accurately. Options: "Point-to-point", "ZVV Ticket", "Travelcard", "Bike", "Day Pass", "International", "Other".
+                                - "travelers": (array of strings) Names of travelers found.
+                                - "price": (number) The cost in CHF. Must be a positive number.
+                                - "isRefunded": (boolean) always false, since you should ignore refunds.
+                      
+                                CRITICAL RULES:
+                                1. Only output raw JSON, no markdown blocks. 
+                                2. Convert dates like "15.01.2024" to "2024-01-15".
+                            `},
+                            { inlineData: { mimeType: "application/pdf", data: base64Data } }
+                        ]
+                    }]
+                };
 
-                if (!response.ok) throw new Error("API call failed");
-
-                const result = await response.json();
-                processAndDisplayData(result.data);
+                const rawText = await callGeminiDirectly(payload);
+                const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const resultData = JSON.parse(cleanJson);
+                
+                processAndDisplayData(resultData);
                 resolve();
             } catch (error) {
                 console.error("PDF Extraction Error:", error);
@@ -369,17 +451,26 @@ async function analyzeTravelPatternsWithAI(data) {
     insightsDiv.innerHTML = '<blink>Consulting the AI Conductor...</blink>';
     try {
         const textSum = data.map(d=>d.description).slice(0,40).join(", ");
-        const response = await fetch('/.netlify/functions/process-pdf', {
-            method: 'POST',
-            body: JSON.stringify({ isInsightRequest: true, text: textSum })
-        });
-        const res = await response.json();
+        const payload = {
+            contents: [{
+                role: "user",
+                parts: [{ text: `
+                    You are a smart travel optimization assistant for Switzerland.
+                    INPUT DATA: ${textSum}
+                    YOUR MISSION: Identify ZVV Zone 110 trips, write a fun short persona summary about their travel style, and offer one clever savings tip. Use Markdown.
+                `}]
+            }]
+        };
+        const rawText = await callGeminiDirectly(payload);
+        
         if(typeof marked !== 'undefined') {
-             insightsDiv.innerHTML = `<div class="prose max-w-none text-white">${marked.parse(res.data)}</div>`;
+             insightsDiv.innerHTML = `<div class="prose max-w-none text-white">${marked.parse(rawText)}</div>`;
         } else {
-             insightsDiv.innerText = res.data;
+             insightsDiv.innerText = rawText;
         }
-    } catch(e) { }
+    } catch(e) { 
+        insightsDiv.innerText = "The AI Conductor is taking a break: " + e.message;
+    }
 }
 
 function exportToExcel() {
@@ -396,7 +487,7 @@ function loadMockData() {
         { travelDate: "2026-01-15", description: "Zürich HB - Bern", ticketType: "Point-to-point", travelers: ["Me"], price: 26.50, isRefunded: false },
         { travelDate: "2026-02-10", description: "Zürich HB - Luzern", ticketType: "Point-to-point", travelers: ["Me"], price: 30.00, isRefunded: false },
         { travelDate: "2026-03-05", description: "ZVV Day Pass", ticketType: "ZVV Ticket", travelers: ["Me"], price: 13.60, isRefunded: false },
-        { travelDate: "2026-04-20", description: "Velo Ticket Day", ticketType: "Bike", travelers: ["Me"], price: 14.00, isRefunded: false }
+        { travelDate: "2026-04-20", description: "Velo Ticket Day", ticket   Type: "Bike", travelers: ["Me"], price: 14.00, isRefunded: false }
     ];
     elements.loader.classList.remove('hidden');
     elements.loaderText.textContent = "Loading sample data...";
