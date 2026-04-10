@@ -8,9 +8,9 @@
     <link rel="icon" type="image/svg+xml" href="assets/tram-svgrepo-com.svg">
 
     <!-- External Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Fonts & Styles -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,9 +26,8 @@
                 <img src="assets/tram-svgrepo-com.svg" alt="Tram icon"
                     style="width: 64px; height: 64px; margin-right: 1.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));" />
                 <div>
-                    <h1 style="font-size: 2.5rem; margin: 0; color: var(--sbb-red);">SBB Ticket Checkler</h1>
-                    <p style="margin: 0.5rem 0 0; color: var(--gray-600); font-size: 1.1rem;">Analyze your Swiss travel
-                        history and find the perfect travelcard.</p>
+                    <h1 class="blink-text" style="font-size: 3rem; margin: 0; color: var(--sbb-red); text-shadow: 2px 2px #ffeb3b;">SBB Ticket Checkler 2000!</h1>
+                    <p style="margin: 0.5rem 0 0; color: var(--gray-600); font-size: 1.1rem; font-family: 'Comic Sans MS', cursive;">Analyze your Swiss travel history!</p>
                 </div>
             </div>
             <button id="mock-data-btn" class="btn btn-secondary" style="font-size: 0.9rem;">
@@ -44,11 +43,15 @@
                 Upload Order Summary (PDF or CSV)
             </h2>
 
-            <p style="margin-bottom: 2rem; color: var(--gray-600);">
-                Export your order summary from your SBB account (last year) and drop it here.
-                <a href="https://www.sbb.ch/en/buying/pages/bestellung/bestellungen.xhtml" target="_blank"
-                    style="color: var(--sbb-red); font-weight: 600; text-decoration: none;">Go to SBB Orders &rarr;</a>
-            </p>
+            <div style="margin-bottom: 2rem; color: var(--gray-600); background: #ffffaa; padding: 10px; border: 2px dashed red;">
+                <b>How to get your SBB Order Summary:</b>
+                <ol style="margin-top: 10px; margin-left: 20px;">
+                    <li>Log in to <a href="https://www.sbb.ch/en/buying/pages/bestellung/bestellungen.xhtml" target="_blank" style="color: blue; text-decoration: underline;">SBB Orders</a></li>
+                    <li>Set the date filter to the "Last Year"</li>
+                    <li>Click "Download as PDF"</li>
+                    <li>Drop that bad boy right here! 👇</li>
+                </ol>
+            </div>
 
             <div class="upload-area">
                 <input type="file" id="pdf-upload" accept=".pdf,.csv" style="display: none;"
@@ -158,10 +161,16 @@
         <!-- Phase 4: Results -->
         <div id="results-section" class="hidden">
             <!-- Recommendation Card -->
-            <div class="card"
-                style="background: linear-gradient(135deg, #ffffff 0%, #fff1f1 100%); border-left: 6px solid var(--sbb-red);">
+            <div class="card punch-ticket"
+                style="background: linear-gradient(135deg, #ffffff 0%, #fff1f1 100%);">
                 <div id="recommendation-output"></div>
             </div>
+
+            <!-- EXTREME TRANSPARENT MATH SECRETS -->
+            <details class="bg-gray-100 p-4 border-4 border-dashed border-red-500 mb-6 cursor-pointer hover:bg-yellow-100 transition-colors">
+                <summary class="font-black text-2xl text-blue-800 uppercase blink-text">🧮 SHOW ME THE MATH!! (CLICK HERE)</summary>
+                <div id="math-details-table" class="mt-4"></div>
+            </details>
 
             <!-- AI Insights -->
             <div class="card">
@@ -209,6 +218,15 @@
                             style="color: var(--gray-500); font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">
                             Avg Trip</div>
                         <div id="avg-trip-cost"
+                            style="font-size: 2rem; font-weight: 800; color: var(--sbb-red); margin-top: 0.5rem;">0
+                        </div>
+                    </div>
+                    <div
+                        style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-md); text-align: center;">
+                        <div
+                            style="color: var(--gray-500); font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">
+                            Tickets/Week</div>
+                        <div id="avg-tickets-week"
                             style="font-size: 2rem; font-weight: 800; color: var(--sbb-red); margin-top: 0.5rem;">0
                         </div>
                     </div>

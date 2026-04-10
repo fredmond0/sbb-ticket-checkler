@@ -1,10 +1,10 @@
-/* SBB Ticket Checker - Modern Premium Styles */
+/* SBB Ticket Checker - EXTREME TACKY TRAIN EDITION */
 
 :root {
-    /* Color Palette */
-    --sbb-red: #EB0000;
+    --sbb-red: #ff0000;
     --sbb-red-dark: #C40000;
-    --sbb-red-light: #FFE5E5;
+    --sbb-red-light: #FFaaaa;
+    --sbb-yellow: #ffeb3b;
 
     --gray-50: #F9FAFB;
     --gray-100: #F3F4F6;
@@ -15,60 +15,49 @@
     --gray-800: #1F2937;
     --gray-900: #111827;
 
-    --white: #FFFFFF;
-    --black: #000000;
-
-    /* Glassmorphism */
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --backdrop-blur: 12px;
-
-    /* Spacing & Radius */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 20px;
-    --radius-xl: 28px;
-
     --container-width: 1200px;
 }
 
 /* Base Reset & Typography */
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--gray-800);
-    background-image: url('train1.png');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+    color: var(--gray-900);
+    /* Obnoxiously chaotic background */
+    background-color: var(--sbb-yellow);
+    background-image: repeating-linear-gradient(45deg, var(--sbb-yellow) 25%, transparent 25%, transparent 75%, var(--sbb-yellow) 75%, var(--sbb-yellow)), repeating-linear-gradient(45deg, var(--sbb-yellow) 25%, #ffffff 25%, #ffffff 75%, var(--sbb-yellow) 75%, var(--sbb-yellow));
+    background-position: 0 0, 40px 40px;
+    background-size: 80px 80px;
     margin: 0;
     min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
+    cursor: crosshair;
 }
 
-/* Overlay to ensure readability over background image */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.7) 100%);
-    z-index: -1;
-    pointer-events: none;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-weight: 700;
-    letter-spacing: -0.02em;
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 900;
     color: var(--gray-900);
+    text-transform: uppercase;
 }
+
+.blink-text {
+    animation: blinker 0.4s step-start infinite;
+}
+@keyframes blinker {
+    50% { opacity: 0; color: #00f; }
+}
+
+.tacky-marquee {
+    background: #000;
+    color: #0f0;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-family: monospace;
+    border: 6px ridge var(--sbb-yellow);
+    box-shadow: 5px 5px 0px #f00;
+}
+
+.text-sbb { color: var(--sbb-red); }
 
 /* Layout Utilities */
 .container {
@@ -78,32 +67,36 @@ h6 {
 }
 
 .card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--backdrop-blur));
-    -webkit-backdrop-filter: blur(var(--backdrop-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--glass-shadow);
+    background: #fff;
+    border: 8px dashed var(--sbb-red);
+    box-shadow: 12px 12px 0px #000;
     padding: 2.5rem;
     margin-bottom: 2rem;
     position: relative;
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--sbb-red), #ff4d4d);
+    transition: transform 0.1s ease;
 }
 
 .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+    transform: translate(-4px, -4px);
+    box-shadow: 16px 16px 0px #000;
+}
+
+/* Physical Ticket Punch Effect */
+.punch-ticket {
+    background: radial-gradient(circle at 0 50%, transparent 20px, #fff 21px),
+                radial-gradient(circle at 100% 50%, transparent 20px, #fff 21px);
+    background-size: 50% 100%;
+    background-position: 0 0, 100% 0;
+    background-repeat: no-repeat;
+    border: 6px solid #000;
+    padding: 30px;
+    box-shadow: 10px 10px 0px var(--sbb-red);
+}
+
+.punch-ticket-inside {
+    background: var(--sbb-yellow);
+    border: 4px dotted #000;
+    padding: 20px;
 }
 
 /* Buttons */
@@ -112,90 +105,67 @@ h6 {
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
+    font-weight: 900;
+    transition: all 0.1s ease;
     cursor: pointer;
-    border: none;
-    font-size: 1rem;
-    letter-spacing: 0.01em;
+    font-size: 1.2rem;
+    font-family: 'Comic Sans MS', cursive;
+    text-transform: uppercase;
 }
 
 .btn-primary {
     background-color: var(--sbb-red);
-    color: var(--white);
-    box-shadow: 0 4px 14px 0 rgba(235, 0, 0, 0.39);
+    color: var(--sbb-yellow);
+    border: 6px outset #ffaaaa;
+    box-shadow: 6px 6px 0 #000;
 }
 
-.btn-primary:hover {
-    background-color: var(--sbb-red-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px 0 rgba(235, 0, 0, 0.23);
+.btn-primary:active {
+    border: 6px inset #ffaaaa;
+    transform: translate(4px, 4px);
+    box-shadow: 2px 2px 0 #000;
 }
 
 .btn-secondary {
-    background-color: var(--white);
-    color: var(--gray-800);
-    border: 1px solid var(--gray-200);
+    background-color: var(--sbb-yellow);
+    color: #000;
+    border: 4px solid #000;
+    box-shadow: 4px 4px 0 var(--sbb-red);
 }
 
 .btn-secondary:hover {
-    background-color: var(--gray-50);
-    border-color: var(--gray-300);
+    background-color: #fff;
 }
 
 /* Form Elements */
-input[type="file"],
-input[type="date"],
-input[type="number"],
-select {
+input[type="file"], input[type="date"], input[type="number"], select {
     width: 100%;
     padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--gray-300);
-    background-color: rgba(255, 255, 255, 0.9);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    border: 4px solid var(--gray-900);
+    background-color: #fff;
     font-size: 1rem;
+    font-family: 'Comic Sans MS', cursive;
+    box-shadow: 3px 3px 0 var(--sbb-red);
 }
 
-input:focus,
-select:focus {
+input:focus, select:focus {
     outline: none;
-    border-color: var(--sbb-red);
-    box-shadow: 0 0 0 3px rgba(235, 0, 0, 0.1);
+    background-color: var(--sbb-yellow);
 }
 
 /* Upload Area */
 .upload-area {
-    border: 2px dashed var(--gray-300);
-    border-radius: var(--radius-md);
+    border: 6px dashed #000;
     padding: 3rem;
     text-align: center;
-    background-color: rgba(255, 255, 255, 0.5);
-    transition: all 0.3s ease;
+    background-color: var(--sbb-red-light);
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.upload-area:hover {
+.upload-area:hover, .upload-area.dragging {
+    background-color: var(--sbb-yellow);
     border-color: var(--sbb-red);
-    background-color: rgba(235, 0, 0, 0.05);
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
 }
 
 /* Loader */
@@ -207,54 +177,44 @@ select:focus {
     padding: 2rem;
 }
 
-/* Train Loader Animation (Keeping the original concept but refined) */
 .train-loader {
     width: 100%;
     max-width: 400px;
     height: 120px;
     position: relative;
     overflow: hidden;
+    border-bottom: 8px solid var(--gray-900);
 }
 
 .track {
     position: absolute;
-    bottom: 20px;
+    bottom: 0px;
     width: 100%;
-    height: 4px;
-    background: #ccc;
+    height: 10px;
+    background: repeating-linear-gradient(90deg, #000, #000 10px, transparent 10px, transparent 20px);
 }
 
 .train-svg {
     position: absolute;
-    bottom: 22px;
+    bottom: 10px;
     left: -100px;
-    width: 60px;
-    animation: travel 3s linear infinite;
+    width: 80px;
+    animation: travel 1.5s linear infinite;
+    filter: drop-shadow(4px 4px 0px #f00);
 }
 
 @keyframes travel {
-    0% {
-        left: -100px;
-    }
-
-    100% {
-        left: 100%;
-    }
-}
-
-.sbb-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 0.5rem;
-    color: var(--sbb-red);
+    0% { left: -100px; transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+    100% { left: 100%; transform: rotate(-5deg); }
 }
 
 /* Table Styles */
 .data-table-container {
     overflow-x: auto;
-    border-radius: var(--radius-md);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 4px solid #000;
     background: white;
+    box-shadow: 6px 6px 0 var(--sbb-red);
 }
 
 table {
@@ -264,26 +224,33 @@ table {
 }
 
 th {
-    background-color: var(--gray-800);
-    color: white;
+    background-color: var(--sbb-red);
+    color: var(--sbb-yellow);
     padding: 1rem;
     text-align: left;
-    font-weight: 600;
+    font-weight: 900;
+    border-bottom: 4px solid #000;
 }
 
 td {
     padding: 1rem;
-    border-bottom: 1px solid var(--gray-100);
+    border-bottom: 2px dashed var(--gray-300);
+    border-right: 2px dashed var(--gray-300);
 }
 
 tr:hover td {
-    background-color: var(--sbb-red-light);
+    background-color: var(--sbb-yellow);
+    cursor: url('assets/tram-svgrepo-com.svg'), auto;
 }
 
-/* Charts */
-.chart-wrapper {
-    position: relative;
-    height: 350px;
-    width: 100%;
-    margin-bottom: 1rem;
+.tacky-table th {
+    background: #000;
+    color: #fff;
+}
+.tacky-table tbody tr:nth-child(even) {
+    background: #eee;
+}
+
+.hidden {
+    display: none !important;
 }
