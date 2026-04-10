@@ -487,7 +487,7 @@ function loadMockData() {
         { travelDate: "2026-01-15", description: "Zürich HB - Bern", ticketType: "Point-to-point", travelers: ["Me"], price: 26.50, isRefunded: false },
         { travelDate: "2026-02-10", description: "Zürich HB - Luzern", ticketType: "Point-to-point", travelers: ["Me"], price: 30.00, isRefunded: false },
         { travelDate: "2026-03-05", description: "ZVV Day Pass", ticketType: "ZVV Ticket", travelers: ["Me"], price: 13.60, isRefunded: false },
-        { travelDate: "2026-04-20", description: "Velo Ticket Day", ticket   Type: "Bike", travelers: ["Me"], price: 14.00, isRefunded: false }
+        { travelDate: "2026-04-20", description: "Velo Ticket Day", ticketType: "Bike", travelers: ["Me"], price: 14.00, isRefunded: false }
     ];
     elements.loader.classList.remove('hidden');
     elements.loaderText.textContent = "Loading sample data...";
