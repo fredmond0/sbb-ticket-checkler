@@ -425,8 +425,8 @@ function displayResults(best, allOptions, totals, prices, bikeAssumption) {
                 ${allOptions.map(o => `
                 <tr class="border-b border-gray-700 hover:bg-gray-100">
                     <td class="p-2 font-bold">${o.name}</td>
-                    <td class="p-2">CHF ${o.name.includes('GA') ? (o.name.includes('Youth') ? prices.GA_YOUTH : prices.GA_ADULT) : (o.name.includes('Half') ? prices.HALF_FARE + (o.name.includes('PLUS') ? parseInt(o.name.split(' ')[2]||0)/1.25 : 0) : 0)}</td>
-                    <td class="p-2">CHF ${o.base - (o.name.includes('GA')?o.base : prices.HALF_FARE)}</td>
+                    <td class="p-2">CHF ${o.name.includes('GA') ? (o.name.includes('Youth') ? prices.GA_YOUTH : prices.GA_ADULT) : (o.name.includes('Half') ? prices.HALF_FARE + (o.name.includes('PLUS') ? (parseInt(o.name.split(' ').pop()) || 0) / 1.25 : 0) : 0)}</td>
+                    <td class="p-2">CHF ${Math.abs(o.base - (o.name.includes('GA') ? o.base : prices.HALF_FARE)).toFixed(2)}</td>
                     <td class="p-2">+ CHF ${bikeAssumption}</td>
                     <td class="p-2 font-black text-red-600">CHF ${o.total.toFixed(2)}</td>
                 </tr>
@@ -463,7 +463,9 @@ async function analyzeTravelPatternsWithAI(data) {
         };
         const rawText = await callGeminiDirectly(payload);
         
-        if(typeof marked !== 'undefined') {
+        if(typeof marked === 'function') {
+             insightsDiv.innerHTML = `<div class="prose max-w-none text-white">${marked(rawText)}</div>`;
+        } else if (typeof marked === 'object' && typeof marked.parse === 'function') {
              insightsDiv.innerHTML = `<div class="prose max-w-none text-white">${marked.parse(rawText)}</div>`;
         } else {
              insightsDiv.innerText = rawText;
